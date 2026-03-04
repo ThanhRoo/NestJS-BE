@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Res, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-
+import {Response} from 'express';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { JwtAuthGuard } from './passport/jwt-auth.guard';
 
@@ -10,10 +10,29 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
-  handleLogin(@Request() req ) {
-    return this.authService.login(req.user);
-  }
+  async handleLogin(@Request() req, @Res({ passthrough: true }) res: Response) {
+    const tokens = await this.authService.login(req.user);
 
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: false, // production = true
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return {
+    accessToken: tokens.accessToken,
+  };
+}
+  @Post('refresh')
+  async refreshToken(@Req() req, @Res({ passthrough: true }) res: Response) {
+
+  const refreshToken = req.cookies.refreshToken;
+
+  const result = await this.authService.refreshToken(refreshToken);
+
+  return result;
+}
   
   @UseGuards(LocalAuthGuard)
   @Post('logout')
@@ -27,8 +46,5 @@ export class AuthController {
     return req.user;
   }
 
-  @Post('refresh')
-  async refreshToken(@Body() body: { refreshToken: string }) {
-    return this.authService.refreshToken(body.refreshToken);
-  }
+
 }
