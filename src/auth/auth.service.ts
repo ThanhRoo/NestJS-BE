@@ -39,6 +39,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid password');
     }
 
+    if (!user.IsActive) {
+      throw new UnauthorizedException('User is not active');
+    }
     return user;
   }
 
