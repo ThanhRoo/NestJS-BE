@@ -51,7 +51,7 @@ export class UsersService {
       return {
         id : user.UserId,
         email : user.Email,
-        roll : user.Role,
+        role : user.Role,
         message : 'User created successfully. Verification code sent to email.',
       }
     } catch (error) {
@@ -161,7 +161,7 @@ export class UsersService {
       this.logger.log('Updating user', { data: updateDto });
       return {
         id : user.UserId,
-        roll : user.Role,
+        role : user.Role,
         message : 'User updated successfully',
       }
     } catch (error) {
@@ -192,24 +192,38 @@ export class UsersService {
     }
   }
   
-  // gọi ngoài phần quên mật khẩu ở login gửi mã xác thực về mail
+  // gọi ngoài phần quên mật khẩu ở login gửi mã xác thực về mail , có thể gọi ở nút gửi lại code set côldown 60s
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto){
     try {
+      const email = forgotPasswordDto.email;
+
+      // check cooldown
+      const cooldownKey = `cooldown:forgot:${email}`;
+      const cooldown = await this.redisService.get(cooldownKey);
+
+      if (cooldown) {
+        throw new BadRequestException('Please wait 60 seconds before requesting another code');
+      }
+
       const user = await this.prisma.users.findUnique({
-        where: { Email: forgotPasswordDto.email },
+        where: { Email: email },
       });
 
       if (!user) {
-        throw new NotFoundException(`User not found: ${forgotPasswordDto.email}`);
+        throw new NotFoundException(`User not found: ${email}`);
       }
 
-      await this.mailService.sendVerificationCode(forgotPasswordDto.email);
+      await this.mailService.sendVerificationCode(email);
 
-      this.logger.log('Forgot password', { email: forgotPasswordDto.email });
+      // set cooldown 60s
+      await this.redisService.set(cooldownKey, '1', 60);
+
+      this.logger.log('Forgot password', { email });
 
       return {
         message: 'Verification code sent to email',
       };
+
     } catch (error) {
       this.logger.error('Failed to forgot password', { error });
       throw new BadRequestException('Failed to forgot password: ' + error.message);
@@ -301,6 +315,14 @@ export class UsersService {
 
   async resendVerificationCode(email: string) {
   try {
+
+    const cooldownKey = `cooldown:verify:${email}`;
+    const cooldown = await this.redisService.get(cooldownKey);
+
+    if (cooldown) {
+      throw new BadRequestException('Please wait 60 seconds before requesting another code');
+    }
+
     const user = await this.prisma.users.findUnique({
       where: { Email: email },
     });
@@ -313,8 +335,10 @@ export class UsersService {
       throw new BadRequestException('Email already verified');
     }
 
-    // gửi lại code
     await this.mailService.sendVerificationCode(email);
+
+    // set cooldown 60s
+    await this.redisService.set(cooldownKey, '1', 60);
 
     this.logger.log('Resending verification code', { email });
 
@@ -330,4 +354,5 @@ export class UsersService {
   }
 }
 }
+
 
