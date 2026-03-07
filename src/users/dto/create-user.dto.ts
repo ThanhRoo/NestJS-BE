@@ -14,8 +14,9 @@ export class CreateUserDto {
   @Length(6, 30, { message: 'Password must be at least 6 characters long' })
   password: string;
 
-  @IsString()
-  role: string = "Client";
+  @IsString({message: 'Role is : Client or ShopOwner'})
+  @IsNotEmpty({ message: 'Role is required and Role : Client or ShopOwner' })
+  role: string ;
 
   @IsOptional()
   @IsBoolean({ message: 'isActive must be a boolean value' })

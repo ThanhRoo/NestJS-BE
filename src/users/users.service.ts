@@ -34,6 +34,10 @@ export class UsersService {
         throw new BadRequestException(`Email already exists : ${email}`);
       }
 
+      if(role !== "Client" && role !== "Shop Owner" && role == "Admin"){
+        throw new BadRequestException(`Role is not valid and cannot create user Admin` );
+      }
+
       const hashPassword = await hashPasswordHelpers(password);
       const user = await this.prisma.users.create({
         data: {
@@ -74,6 +78,9 @@ export class UsersService {
         throw new BadRequestException(`Email already exists : ${email}`);
       }
 
+      if(role !== "Client" && role !== "Shop Owner" && role == "Admin"){
+        throw new BadRequestException(`Role is not valid and cannot create user Admin`);
+      }
       const user = await this.prisma.users.create({
         data: {
           FullName: name,

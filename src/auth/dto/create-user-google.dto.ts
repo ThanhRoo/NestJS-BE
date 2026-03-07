@@ -10,8 +10,9 @@ export class CreateUserGoogleDto {
   email: string;
 
 
-  @IsString()
-  role: string = "Client";
+  @IsString({message: 'Role is : Client or ShopOwner'})
+  @IsNotEmpty({ message: 'Role is required : Client or ShopOwner' })
+  role: string ;
 
   @IsOptional()
   @IsBoolean({ message: 'isActive must be a boolean value' })

@@ -4,7 +4,7 @@ import { comparePasswordHelpers } from '../helpers/util';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CreateUserGoogleDto } from './dto/create-user-google.dto';
-
+import { Logger } from 'nestjs-pino';
 export interface TokenPayload {
   sub: string;
   email: string;
@@ -22,6 +22,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private logger : Logger ,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -77,6 +78,7 @@ export class AuthService {
       this.generateRefreshToken(payload),
     ]);
 
+    this.logger.log('Login user', { data: user });
     return {
       accessToken,
       refreshToken,

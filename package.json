@@ -42,7 +42,11 @@
     "passport-local": "^1.0.0",
     "pino-http": "^11.0.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "@prisma/adapter-better-sqlite3": "^7.4.2", 
+    "@prisma/client": "^6.19.2",
+    "dotenv": "^17.3.1",
+    "prisma": "^6.19.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -74,7 +78,8 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.20.0",
+    "t": "^0.5.1"
   },
   "jest": {
     "moduleFileExtensions": [
