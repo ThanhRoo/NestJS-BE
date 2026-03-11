@@ -23,7 +23,7 @@ export class UsersService {
     ) {}
   async create(createDto: CreateUserDto) {
     try {  
-      const {name,email,password,role} = createDto;
+      const {name,email,password} = createDto;
 
       // Check if email already exists
       const existingUser = await this.prisma.users.findUnique({
@@ -34,17 +34,13 @@ export class UsersService {
         throw new BadRequestException(`Email already exists : ${email}`);
       }
 
-      if(role !== "Client" && role !== "Shop Owner" && role == "Admin"){
-        throw new BadRequestException(`Role is not valid and cannot create user Admin` );
-      }
-
       const hashPassword = await hashPasswordHelpers(password);
       const user = await this.prisma.users.create({
         data: {
           FullName: name,
           Email: email, 
           PasswordHash: String(hashPassword),
-          Role: role,
+          Role: "Client",
           IsActive: false,
         },
       });
@@ -52,7 +48,7 @@ export class UsersService {
       // Send verification code to user email
       await this.mailService.sendVerificationCode(email);
 
-      this.logger.log('Creating new user', { data: createDto });
+      this.logger.log('Creating new user', { data: {name,email, role:user.Role, isActive:user.IsActive} });
       return {
         id : user.UserId,
         email : user.Email,
