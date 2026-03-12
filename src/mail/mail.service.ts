@@ -17,14 +17,14 @@ export class MailService {
   ) {}
 
   async sendVerificationCode(
-  email: string,
-  type: string,
-) {
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
+    email: string,
+    type: string,
+  ) {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-  const key = `${type}:${email}`;
+    const key = `${type}:${email}`;
 
-  await this.redisService.set(key, code, this.CODE_TTL);
+    await this.redisService.set(key, code, this.CODE_TTL);
     // Send email
     await this.mailerService.sendMail({
       to: email,
