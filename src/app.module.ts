@@ -10,6 +10,16 @@ import { MailModule } from './mail/mail.module';
 import redisConfig, { mailConfig } from './config/env.config';
 import { RedisModule } from './shared/redis.module';
 import { UploadModule } from './upload/upload.module';
+import { StoreModule } from './store/store.module';
+import { ProductModule } from './product/product.module';
+import { CartModule } from './cart/cart.module';
+import { OrderModule } from './order/order.module';
+import { PaymentModule } from './payment/payment.module';
+import { VoucherModule } from './voucher/voucher.module';
+import { ChatModule } from './chat/chat.module';
+import { NotificationModule } from './notification/notification.module';
+import { AirecommendationModule } from './airecommendation/airecommendation.module';
+import { ReportModule } from './report/report.module';
 @Module({
   imports: [
     PrismaModule,
@@ -33,7 +43,17 @@ import { UploadModule } from './upload/upload.module';
     }),
     AuthModule,
     MailModule,
-    UploadModule,   
+    UploadModule,
+    StoreModule,
+    ProductModule,
+    CartModule,
+    OrderModule,
+    PaymentModule,
+    VoucherModule,
+    ChatModule,
+    NotificationModule,
+    AirecommendationModule,
+    ReportModule,   
   ],
   controllers: [AppController],
   providers: [AppService],
